@@ -2,6 +2,9 @@ import { render, screen } from "@testing-library/react";
 import App from "./App";
 
 beforeEach(() => {
+  // ✅ App.js requires this or it returns early and never calls fetch
+  process.env.REACT_APP_OPENWEATHER_KEY = "test-key";
+
   global.fetch = jest.fn(() =>
     Promise.resolve({
       ok: true,
@@ -23,6 +26,7 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.resetAllMocks();
+  delete process.env.REACT_APP_OPENWEATHER_KEY;
 });
 
 test("renders app title and loads default city weather", async () => {
@@ -30,7 +34,7 @@ test("renders app title and loads default city weather", async () => {
 
   expect(screen.getByText(/Nebula Weather/i)).toBeInTheDocument();
 
-  // This waits until the heading appears (no flaky timing)
+  // Wait for the weather card heading to appear
   const cityHeading = await screen.findByRole("heading", { name: /Toronto/i });
   expect(cityHeading).toBeInTheDocument();
 
